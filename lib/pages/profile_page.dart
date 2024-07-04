@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../main.dart';
 import '../models/userinfo.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -9,6 +10,8 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userInfo = context.watch<UserInfo>();
+    final navigationStateHolder = context.watch<NavigationState>();
+
     return Scaffold(
       body: SafeArea(
         child: SizedBox.expand(
@@ -27,7 +30,7 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () => Navigator.of(context).pushNamed('/details'),
+                onTap: () => navigationStateHolder.gotoProfileDetails(),
                 child: Text(
                   userInfo.name,
                   style: Theme.of(context).textTheme.titleLarge,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../controllers/nested_navigation_controller.dart';
+import '../main.dart';
 import '../models/product.dart';
 import '../theme/theme.dart';
 
@@ -17,9 +17,11 @@ class ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final nestedController = context.read<NestedShopNavigationController>();
+    final navigationStateHolder = context.watch<NavigationState>();
+
     return ListTile(
-      onTap: () => nestedController.gotoPage('/product/${productInfo.id}'),
+      onTap: () => navigationStateHolder.gotoProduct(
+          productInfo.category, productInfo.id),
       leading: SizedBox(
         height:
             Theme.of(context).extension<YaShoppingTheme>()?.categoryIconHeight,

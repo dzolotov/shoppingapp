@@ -17,7 +17,6 @@ import 'theme/theme.dart';
 
 //структура адреса /locale/path, например /ru/profile
 
-/*
 class NavigationState extends ChangeNotifier {
   bool isLanding = true;
 
@@ -87,6 +86,7 @@ class NavigationState extends ChangeNotifier {
   }
 }
 
+/*
 TODO:
 
 - /profile - страница профиля
@@ -109,13 +109,11 @@ class ShoppingApp extends StatefulWidget {
 }
 
 class _ShoppingAppState extends State<ShoppingApp> {
-  int _tabIndex = 0;
-
   @override
   Widget build(BuildContext context) => MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => Cart()),
-          ChangeNotifierProvider(create: (_) => AppLanguageStateHolder()),
+          ChangeNotifierProvider(create: (_) => NavigationState()),
           Provider(create: (_) => authorizedUser),
           Provider(create: (_) => NestedShopNavigationController()),
           Provider(create: (_) => NestedProfileNavigationController()),
@@ -123,8 +121,7 @@ class _ShoppingAppState extends State<ShoppingApp> {
         ],
         child: Builder(
           builder: (context) {
-            final appLanguageStateHolder =
-                context.watch<AppLanguageStateHolder>();
+            final navigationStateHolder = context.watch<NavigationState>();
             final controller = context.read<RootNavigationController>();
 
             return MaterialApp(
@@ -136,7 +133,7 @@ class _ShoppingAppState extends State<ShoppingApp> {
                 AppLocalizations.delegate,
               ],
               locale: Locale.fromSubtags(
-                languageCode: appLanguageStateHolder.language.name,
+                languageCode: navigationStateHolder.language.name,
               ),
               supportedLocales: [
                 Locale('ru'),
@@ -165,17 +162,17 @@ class _ShoppingAppState extends State<ShoppingApp> {
                 ),
                 primarySwatch: Colors.blue,
               ),
-              home: Builder(builder: (context) {
-                return Navigator(
-                  key: controller.key,
-                  initialRoute: '/',
-                  onGenerateRoute: (settings) {
-                    switch (settings.name) {
-                      case '/':
-                        return MaterialPageRoute(builder: (_) => LandingPage());
-                      case '/shop':
-                        return MaterialPageRoute(
-                          builder: (_) => Scaffold(
+              home: Builder(
+                builder: (context) {
+                  return Navigator(
+                    key: controller.key,
+                    onPopPage: (route, result) => route.didPop(result),
+                    pages: [
+                      if (navigationStateHolder.isLanding)
+                        MaterialPage(child: LandingPage()),
+                      if (!navigationStateHolder.isLanding)
+                        MaterialPage(
+                          child: Scaffold(
                             appBar: AppBar(
                               title: Text(AppLocalizations.of(context)!.shop),
                             ),
@@ -183,7 +180,7 @@ class _ShoppingAppState extends State<ShoppingApp> {
                                 FloatingActionButtonLocation.endTop,
                             floatingActionButton: IconButton(
                               icon: Flag.fromString(
-                                appLanguageStateHolder.flag,
+                                navigationStateHolder.flag,
                                 width: Theme.of(context)
                                     .extension<YaShoppingTheme>()!
                                     .flagSize,
@@ -191,7 +188,7 @@ class _ShoppingAppState extends State<ShoppingApp> {
                                     .extension<YaShoppingTheme>()!
                                     .flagSize,
                               ),
-                              onPressed: appLanguageStateHolder.switchLanguage,
+                              onPressed: navigationStateHolder.switchLanguage,
                             ),
                             bottomNavigationBar: Consumer<Cart>(
                               builder: (context, cart, _) =>
@@ -217,16 +214,21 @@ class _ShoppingAppState extends State<ShoppingApp> {
                                         AppLocalizations.of(context)!.profile,
                                   )
                                 ],
-                                currentIndex: _tabIndex,
+                                currentIndex: navigationStateHolder.tabIndex,
                                 onTap: (_newIndex) {
-                                  setState(() {
-                                    _tabIndex = _newIndex;
-                                  });
+                                  switch (_newIndex) {
+                                    case 0:
+                                      navigationStateHolder.gotoCategories();
+                                    case 1:
+                                      navigationStateHolder.gotoCart();
+                                    case 2:
+                                      navigationStateHolder.gotoProfile();
+                                  }
                                 },
                               ),
                             ),
                             body: IndexedStack(
-                              index: _tabIndex,
+                              index: navigationStateHolder.tabIndex,
                               children: [
                                 NestedNavigationShopPage(),
                                 CartPage(),
@@ -234,12 +236,11 @@ class _ShoppingAppState extends State<ShoppingApp> {
                               ],
                             ),
                           ),
-                        );
-                    }
-                    return MaterialPageRoute(builder: (_) => LandingPage());
-                  },
-                );
-              }),
+                        )
+                    ],
+                  );
+                },
+              ),
             );
           },
         ),

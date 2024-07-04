@@ -33,28 +33,30 @@ class _ProductsPageState extends State<ProductsPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text(
-              category.title[Localizations.localeOf(context).languageCode]!),
-        ),
-        body: products.isEmpty
-            ? Center(
-                child: Text(AppLocalizations.of(context)!.no_products),
-              )
-            : Padding(
-                padding: EdgeInsets.only(
-                    top: Theme.of(context)
-                        .extension<YaShoppingTheme>()!
-                        .productsListTopPadding),
-                child: ListView.builder(
-                  itemCount: products.length,
-                  itemBuilder: (context, index) =>
-                      ProductItem(productInfo: products[index]),
-                  itemExtent: Theme.of(context)
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title:
+            Text(category.title[Localizations.localeOf(context).languageCode]!),
+      ),
+      body: products.isEmpty
+          ? Center(
+              child: Text(AppLocalizations.of(context)!.no_products),
+            )
+          : Padding(
+              padding: EdgeInsets.only(
+                  top: Theme.of(context)
                       .extension<YaShoppingTheme>()!
-                      .productsListItemExtent,
-                ),
+                      .productsListTopPadding),
+              child: ListView.builder(
+                itemCount: products.length,
+                itemBuilder: (context, index) =>
+                    ProductItem(productInfo: products[index]),
+                itemExtent: Theme.of(context)
+                    .extension<YaShoppingTheme>()!
+                    .productsListItemExtent,
               ),
-      );
+            ),
+    );
+  }
 }
