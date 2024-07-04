@@ -19,6 +19,8 @@ import 'theme/theme.dart';
 
 /*
 class NavigationState extends ChangeNotifier {
+  bool isLanding = true;
+
   SupportedLanguages _language = SupportedLanguages.en;
 
   SupportedLanguages get language => _language;
@@ -36,18 +38,26 @@ class NavigationState extends ChangeNotifier {
   int? product; //если null - в списке товаров (при category!=null)
   bool profileDetails = false; //false - профиль, true - подробности
 
+  void gotoLanding() {
+    isLanding = true;
+    notifyListeners();
+  }
+
   void gotoCart() {
+    isLanding = false;
     tabIndex = 1;
     notifyListeners();
   }
 
   void gotoCategories() {
+    isLanding = false;
     tabIndex = 0;
     this.category = null;
     notifyListeners();
   }
 
   void gotoProducts(int category) {
+    isLanding = false;
     tabIndex = 0;
     this.category = category;
     this.product = null;
@@ -55,6 +65,7 @@ class NavigationState extends ChangeNotifier {
   }
 
   void gotoProduct(int category, int product) {
+    isLanding = false;
     tabIndex = 0;
     this.category = category;
     this.product = product;
@@ -62,12 +73,14 @@ class NavigationState extends ChangeNotifier {
   }
 
   void gotoProfile() {
+    isLanding = false;
     tabIndex = 2;
     profileDetails = false;
     notifyListeners();
   }
 
   void gotoProfileDetails() {
+    isLanding = false;
     tabIndex = 2;
     profileDetails = true;
     notifyListeners();
@@ -115,104 +128,119 @@ class _ShoppingAppState extends State<ShoppingApp> {
             final controller = context.read<RootNavigationController>();
 
             return MaterialApp(
-                navigatorKey: controller.key,
-                title: 'Ya Shopping',
-                localizationsDelegates: [
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                  AppLocalizations.delegate,
+              title: 'Ya Shopping',
+              localizationsDelegates: [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                AppLocalizations.delegate,
+              ],
+              locale: Locale.fromSubtags(
+                languageCode: appLanguageStateHolder.language.name,
+              ),
+              supportedLocales: [
+                Locale('ru'),
+                Locale('en'),
+              ],
+              theme: ThemeData(
+                extensions: [
+                  YaShoppingTheme(),
                 ],
-                locale: Locale.fromSubtags(
-                  languageCode: appLanguageStateHolder.language.name,
-                ),
-                supportedLocales: [
-                  Locale('ru'),
-                  Locale('en'),
-                ],
-                theme: ThemeData(
-                  extensions: [
-                    YaShoppingTheme(),
-                  ],
-                  textTheme: TextTheme(
-                    titleLarge: TextStyle(fontSize: 32),
-                    titleMedium: TextStyle(fontSize: 24),
-                    bodyLarge: TextStyle(fontSize: 24),
-                    bodyMedium: TextStyle(fontSize: 22),
-                    displaySmall: TextStyle(fontSize: 24),
-                    displayMedium: TextStyle(
-                      fontSize: 48,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          offset: Offset(3, 3),
-                          color: Colors.black26,
-                        )
-                      ],
-                    ),
+                textTheme: TextTheme(
+                  titleLarge: TextStyle(fontSize: 32),
+                  titleMedium: TextStyle(fontSize: 24),
+                  bodyLarge: TextStyle(fontSize: 24),
+                  bodyMedium: TextStyle(fontSize: 22),
+                  displaySmall: TextStyle(fontSize: 24),
+                  displayMedium: TextStyle(
+                    fontSize: 48,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        offset: Offset(3, 3),
+                        color: Colors.black26,
+                      )
+                    ],
                   ),
-                  primarySwatch: Colors.blue,
                 ),
-                initialRoute: '/',
-                routes: {
-                  '/': (context) => LandingPage(),
-                  '/shop': (context) => Scaffold(
-                        appBar: AppBar(
-                          title: Text(AppLocalizations.of(context)!.shop),
-                        ),
-                        floatingActionButtonLocation:
-                            FloatingActionButtonLocation.endTop,
-                        floatingActionButton: IconButton(
-                          icon: Flag.fromString(
-                            appLanguageStateHolder.flag,
-                            width: Theme.of(context)
-                                .extension<YaShoppingTheme>()!
-                                .flagSize,
-                            height: Theme.of(context)
-                                .extension<YaShoppingTheme>()!
-                                .flagSize,
-                          ),
-                          onPressed: appLanguageStateHolder.switchLanguage,
-                        ),
-                        bottomNavigationBar: Consumer<Cart>(
-                          builder: (context, cart, _) => BottomNavigationBar(
-                            items: [
-                              BottomNavigationBarItem(
-                                icon: Icon(Icons.shopping_bag),
-                                label: AppLocalizations.of(context)!.products,
+                primarySwatch: Colors.blue,
+              ),
+              home: Builder(builder: (context) {
+                return Navigator(
+                  key: controller.key,
+                  initialRoute: '/',
+                  onGenerateRoute: (settings) {
+                    switch (settings.name) {
+                      case '/':
+                        return MaterialPageRoute(builder: (_) => LandingPage());
+                      case '/shop':
+                        return MaterialPageRoute(
+                          builder: (_) => Scaffold(
+                            appBar: AppBar(
+                              title: Text(AppLocalizations.of(context)!.shop),
+                            ),
+                            floatingActionButtonLocation:
+                                FloatingActionButtonLocation.endTop,
+                            floatingActionButton: IconButton(
+                              icon: Flag.fromString(
+                                appLanguageStateHolder.flag,
+                                width: Theme.of(context)
+                                    .extension<YaShoppingTheme>()!
+                                    .flagSize,
+                                height: Theme.of(context)
+                                    .extension<YaShoppingTheme>()!
+                                    .flagSize,
                               ),
-                              BottomNavigationBarItem(
-                                icon: Badge(
-                                  label: Text(
-                                    cart.count.toString(),
+                              onPressed: appLanguageStateHolder.switchLanguage,
+                            ),
+                            bottomNavigationBar: Consumer<Cart>(
+                              builder: (context, cart, _) =>
+                                  BottomNavigationBar(
+                                items: [
+                                  BottomNavigationBarItem(
+                                    icon: Icon(Icons.shopping_bag),
+                                    label:
+                                        AppLocalizations.of(context)!.products,
                                   ),
-                                  child: Icon(Icons.shopping_cart),
-                                ),
-                                label: AppLocalizations.of(context)!.cart,
+                                  BottomNavigationBarItem(
+                                    icon: Badge(
+                                      label: Text(
+                                        cart.count.toString(),
+                                      ),
+                                      child: Icon(Icons.shopping_cart),
+                                    ),
+                                    label: AppLocalizations.of(context)!.cart,
+                                  ),
+                                  BottomNavigationBarItem(
+                                    icon: Icon(Icons.account_box_outlined),
+                                    label:
+                                        AppLocalizations.of(context)!.profile,
+                                  )
+                                ],
+                                currentIndex: _tabIndex,
+                                onTap: (_newIndex) {
+                                  setState(() {
+                                    _tabIndex = _newIndex;
+                                  });
+                                },
                               ),
-                              BottomNavigationBarItem(
-                                icon: Icon(Icons.account_box_outlined),
-                                label: AppLocalizations.of(context)!.profile,
-                              )
-                            ],
-                            currentIndex: _tabIndex,
-                            onTap: (_newIndex) {
-                              setState(() {
-                                _tabIndex = _newIndex;
-                              });
-                            },
+                            ),
+                            body: IndexedStack(
+                              index: _tabIndex,
+                              children: [
+                                NestedNavigationShopPage(),
+                                CartPage(),
+                                NestedNavigationProfilePage(),
+                              ],
+                            ),
                           ),
-                        ),
-                        body: IndexedStack(
-                          index: _tabIndex,
-                          children: [
-                            NestedNavigationShopPage(),
-                            CartPage(),
-                            NestedNavigationProfilePage(),
-                          ],
-                        ),
-                      ),
-                });
+                        );
+                    }
+                    return MaterialPageRoute(builder: (_) => LandingPage());
+                  },
+                );
+              }),
+            );
           },
         ),
       );
