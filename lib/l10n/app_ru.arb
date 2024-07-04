@@ -1,0 +1,14 @@
+{
+    "products": "Товары",
+    "cart": "Корзина",
+    "profile": "Профиль",
+    "no_products": "Ничего не найдено",
+    "shop": "Магазин",
+    "ok": "Да",
+    "cancel": "Отмена",
+    "delete_from_cart": "Удалить из корзины",
+    "delete_from_cart_confirmation": "Вы уверены, что хотите удалить товар из корзины",
+    "cart_empty": "Корзина пуста",
+    "app_title": "Магазин радости",
+    "start_button": "Начать"
+}

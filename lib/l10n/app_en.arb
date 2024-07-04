@@ -1,0 +1,14 @@
+{
+    "products": "Products",
+    "cart": "Cart",
+    "profile": "Profile",
+    "no_products": "No products",
+    "shop": "Shop",
+    "ok": "Ok",
+    "cancel": "Cancel",
+    "delete_from_cart": "Delete from cart",
+    "delete_from_cart_confirmation": "Do you want to delete product from the cart",
+    "cart_empty": "Cart is empty",
+    "app_title": "Joy Shop",
+    "start_button": "Start"
+}
